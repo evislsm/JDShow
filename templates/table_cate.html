@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block titlecontext %}
+    <title>商品类目</title>
+{% endblock %}
+
+{% block input %}
+    <link rel="stylesheet" href="/static/css/amazeui.css" />
+    <link rel="stylesheet" href="/static/css/core.css">
+    <link rel="stylesheet" href="/static/css/admin.css">
+{% endblock %}
+
+{% block content %}
+    <div class="card-box">
+        <div class="am-g">
+            <div class="am-u-sm-12">
+                <table class="am-table am-table-striped am-table-hover table-main">
+                    <thead>
+                    <tr>
+                        <th>类目ID</th><th>类目名称</th><th>URL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in categoriescontext %}
+                        <tr>
+                        <td></td><td>{{ i.name }}</td><td>{{ i.url }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="am-cf">
+                    <div class="am-fr">
+                    <ul class="am-pagination">
+                      <li><a href="?page=1">«</a></li>
+                      {% for i in page_range %}
+                          <li><a href="?page={{ i }}">{{ i }}</a></li>
+                      {% endfor %}
+                      <li><a href="?page={{ paginator.num_pages }}">»</a></li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+{% endblock %}

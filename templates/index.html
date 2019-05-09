@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block titlecontext %}
+    <title>首页</title>
+{% endblock %}
+{% block input %}
+    <link rel="stylesheet" href="/static/css/amazeui.css" />
+    <link rel="stylesheet" href="/static/css/core.css">
+{% endblock %}
+{% block content %}
+    <div class="am-g">
+
+    <div class="am-u-md-6">
+            <div class="card-box">
+                <h4 class="header-title m-t-0">价格分析</h4>
+                <div id='avgprice' style="height: 345px;height: 300px;"></div>
+            </div>
+    </div>
+
+    <div class="am-u-md-6">
+        <div class="card-box">
+            <h4 class="header-title m-t-0">销量</h4>
+            <div id="salecount" style="height: 345px;height: 300px"></div>
+        </div>
+    </div>
+
+    </div>
+    <div class="am-g">
+        <div class="am-u-md-4">
+            <div class="card-box">
+                <h4 class="header-title m-t-0">访问来源</h4>
+                <div id='from' style="height: 345px;height: 300px;"></div>
+            </div>
+        </div>
+
+        <div class="am-u-md-4">
+            <div class="card-box">
+                <h4 class="header-title m-t-0">爬虫爬取进度</h4>
+                <div id="catewc" style="height: 345px;height: 300px"></div>
+            </div>
+        </div>
+
+        <div class="am-u-md-4">
+            <div class="card-box">
+                <h4 class="header-title m-t-0">会员等级占比</h4>
+                <div id="member" style="height: 345px;height: 300px"></div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+    var mycharts = echarts.init(document.getElementById('from'))
+    option = {
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a} <br/>{b}: {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            x: 'left',
+            data:{{ userclient|safe }}
+        },
+        series: [
+            {
+                name:'访问来源',
+                type:'pie',
+                radius: ['50%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    normal: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            fontSize: '30',
+                            fontWeight: 'bold'
+                        }
+                    }
+                },
+                labelLine: {
+                    normal: {
+                        show: false
+                    }
+                },
+                data:{{ userclientlist|safe }}
+            }
+        ]
+    };
+    mycharts.setOption(option)
+    </script>
+    <script type="text/javascript">
+    var mycharts = echarts.init(document.getElementById('catewc'))
+    var result = {{ catecount|safe }} / 1190 * 100;
+    var dataStyle = {
+    normal: {
+        label: {
+            show: false
+        },
+        labelLine: {
+            show: false
+        },
+        shadowBlur: 40,
+        shadowColor: 'rgba(40, 40, 40, 0.5)',
+    }
+    };
+    var placeHolderStyle = {
+        normal: {
+            color: 'rgba(44,59,70,1)',//未完成的圆环的颜色
+            label: {
+                show: false
+            },
+            labelLine: {
+                show: false
+            }
+        },
+        emphasis: {
+            color: 'rgba(44,59,70,1)'//未完成的圆环的颜色
+        }
+    };
+    option = {
+        title: {
+            text: result.toFixed(3) + '%',
+            x: 'center',
+            y: 'center',
+            textStyle: {
+                fontWeight: 'normal',
+                color: "#0bb6f0",
+                fontSize: 20
+            }
+        },
+        color: ['#eb644b', '#313443', '#fff'],
+        tooltip: {
+            show: false,
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            show: false,
+            itemGap: 12,
+            data: ['01', '02']
+        },
+        toolbox: {
+            show: false,
+            feature: {
+                mark: {
+                    show: true
+                },
+                dataView: {
+                    show: true,
+                    readOnly: false
+                },
+                restore: {
+                    show: true
+                },
+                saveAsImage: {
+                    show: true
+                }
+            }
+        },
+        series: [{
+                name: 'Line 1',
+                type: 'pie',
+                clockWise: false,
+                radius: [95, 100],
+                itemStyle: dataStyle,
+                hoverAnimation: false,
+
+                data: [{
+                        value: 1190 - {{ catecount|safe }},
+                        name: '01'
+                    }, {
+                        value: {{ catecount|safe }},
+                        name: 'invisible',
+                        itemStyle: placeHolderStyle
+                    }
+
+                ]
+            },
+        ]
+    };
+    mycharts.setOption(option)
+    </script>
+    <script type="text/javascript">
+    var mycharts = echarts.init(document.getElementById('avgprice'))
+    option = {
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['原价','真实价格']
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'none'
+            },
+            dataView: {readOnly: false},
+            magicType: {type: ['line', 'bar']},
+            restore: {},
+            saveAsImage: {}
+        }
+    },
+    xAxis:  {
+        type: 'category',
+        boundaryGap: false,
+        data: {{ productname|safe }}
+    },
+    yAxis: {
+        type: 'value',
+        axisLabel: {
+            formatter: '￥{value}'
+        }
+    },
+    series: [
+        {
+            name:'原价',
+            type:'line',
+            data:{{ originalprice|safe }},
+            markPoint: {
+                data: [
+                    {type: 'max', name: '最大值'},
+                    {type: 'min', name: '最小值'}
+                ]
+            },
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'}
+                ]
+            }
+        },
+        {
+            name:'真实价格',
+            type:'line',
+            data:{{ reallyprice|safe }},
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'},
+                    {
+                        symbol: 'none',
+                        x: '90%',
+                        yAxis: 'max'
+                    }
+                ]
+            }
+        }
+    ]
+    };
+    mycharts.setOption(option)
+    </script>
+    <script type="text/javascript">
+    mycharts = echarts.init(document.getElementById('member'))
+    option = {
+    tooltip : {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    legend: {
+        x : 'center',
+        y : 'bottom',
+        data:{{ member|safe }}
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            magicType : {
+                show: true,
+                type: ['pie', 'funnel']
+            },
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    calculable : true,
+    series : [
+        {
+            name:'会员消费占比',
+            type:'pie',
+            radius : [20, 110],
+            center : ['50%', '50%'],
+            roseType : 'radius',
+            label: {
+                normal: {
+                    show: false
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            lableLine: {
+                normal: {
+                    show: false
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            data:{{ memberleve|safe }}
+        }
+    ]
+    };
+    mycharts.setOption(option)
+    </script>
+    <script type="text/javascript">
+    mycharts = echarts.init(document.getElementById('salecount'))
+    var option = {
+    toolbox: {
+        feature: {
+            dataZoom: {
+                yAxisIndex: false
+            },
+            saveAsImage: {
+                pixelRatio: 2
+            }
+        }
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
+    grid: {
+        bottom: 90
+    },
+    dataZoom: [{
+        type: 'inside'
+    }, {
+        type: 'slider'
+    }],
+    xAxis: {
+        data: {{ commentsummaryidlist|safe }},
+        silent: false,
+        splitLine: {
+            show: false
+        },
+        splitArea: {
+            show: false
+        }
+    },
+    yAxis: {
+        splitArea: {
+            show: false
+        }
+    },
+    series: [{
+        type: 'bar',
+        data: {{ commentsummarycountlist|safe }},
+        // Set `large` for large data amount
+        large: true
+    }]
+    };
+    mycharts.setOption(option)
+    </script>
+{% endblock %}
